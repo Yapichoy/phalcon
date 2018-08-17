@@ -16,7 +16,7 @@ $config = new ConfigIni(
     APP_PATH . "/config/config.ini"
 );
 $loader = new Loader();
-require BASE_PATH . '/web/router.php';
+
 $di = new FactoryDefault();
 $loader->registerDirs(
     [
@@ -56,7 +56,7 @@ $di->set('url',
         $url->setBaseUri('/');
         return $url;
     });
-
+require BASE_PATH . '/web/router.php';
 // Настраиваем сервис для работы с БД
 $di->set(
     "db",

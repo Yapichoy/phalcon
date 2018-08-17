@@ -13,7 +13,7 @@ echo PHP_EOL;
 echo PHP_EOL;
 
 echo $this->tag->linkTo(
-'signup',
+'phalcon/signup',
 'Регистрируйся!'
 );
 
