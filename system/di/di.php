@@ -38,3 +38,61 @@ $di->set(
         );
     }
 );
+$di->set(
+    "session",
+    function () {
+        $session = new Phalcon\Session\Adapter\Files();
+
+        $session->start();
+
+        return $session;
+    }
+);
+$di->set(
+    "request",
+    "Phalcon\\Http\\Request"
+);
+
+
+// Устанавливаем сервис
+$di->set(
+    "flash",
+    function () {
+        return new Phalcon\Flash\Direct ();
+    }
+);
+
+// Set up the flash session service
+$di->set(
+    "flashSession",
+    function () {
+        return new Phalcon\Flash\Session();
+    }
+);
+
+
+$di->set(
+    "dispatcher",
+    function () {
+        $eventsManager = new Phalcon\Events\Manager();
+
+        // Плагин безопасности слушает события, инициированные диспетчером
+        $eventsManager->attach(
+            "dispatch:beforeExecuteRoute",
+            new SecurityPlugin()
+        );
+
+        // Отлавливаем исключения и not-found исключения, используя NotFoundPlugin
+        $eventsManager->attach(
+            "dispatch:beforeException",
+            new NotFoundPlugin()
+        );
+
+        $dispatcher = new Dispatcher();
+
+        // Связываем менеджер событий с диспетчером
+        $dispatcher->setEventsManager($eventsManager);
+
+        return $dispatcher;
+    }
+);
