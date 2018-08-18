@@ -6,7 +6,7 @@ $di->set('view', function (){
     $view->setViewsDir(APP_PATH . '/views/');
     $view->registerEngines(
         [
-            '.phtml' => 'Phalcon\Mvc\View\Engine\Volt',
+            '.twig' => 'Phalcon\Mvc\View\Engine\Volt',
         ]
     );
     return $view;
@@ -28,7 +28,7 @@ $di->set('router',function () {
 $di->set(
     "db",
     function () use ($config) {
-        return new Phalcone\Db\Adapter\Pdo\Mysql(
+        return new Phalcon\Db\Adapter\Pdo\Mysql(
             [
                 "host"     => $config->database->host,
                 "username" => $config->database->username,

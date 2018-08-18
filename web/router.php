@@ -1,6 +1,6 @@
 <?php
 
     $router->add("/","Index::index");
-    $router->add("/admin/users/my-profile", "Index::profile");
+    $router->add('/user', 'User::show');
 
 
