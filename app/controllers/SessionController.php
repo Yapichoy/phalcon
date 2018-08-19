@@ -1,45 +1,58 @@
 <?php
 
-use Phalcon\Mvc\Controller;
-use Models\User;
-class SessionController extends Controller
+/**
+ * SessionController
+ *
+ * Allows to authenticate users
+ */
+class SessionController extends ControllerBase
 {
-    private function _registerSession($user)
+    public function initialize()
     {
-        $this->session->set(
-            "auth",
-            [
-                "id"   => $user->id,
-                "name" => $user->name,
-            ]
-        );
+        $this->tag->setTitle('Sign Up/Sign In');
+        parent::initialize();
     }
+
+    public function indexAction()
+    {
+        if (!$this->request->isPost()) {
+            $this->tag->setDefault('email', 'demo');
+            $this->tag->setDefault('password', 'phalcon');
+        }
+    }
+
+    /**
+     * Register an authenticated user into session data
+     *
+     * @param Users $user
+     */
+    private function _registerSession(Users $user)
+    {
+        $this->session->set('auth', [
+            'id' => $user->id,
+            'name' => $user->name
+        ]);
+    }
+
+    /**
+     * This action authenticate and logs an user into the application
+     *
+     */
     public function startAction()
     {
         if ($this->request->isPost()) {
-            // Получаем данные от пользователя
-            $email    = $this->request->getPost("email");
-            $password = $this->request->getPost("password");
 
-            // Производим поиск в базе данных
-            $user = User::findFirst(
-                [
-                    "(email = :email: OR username = :email:) AND password = :password:",
-                    "bind" => [
-                        "email"    => $email,
-                        "password" => sha1($password),
-                    ]
-                ]
-            );
+            $email = $this->request->getPost('email');
+            $password = $this->request->getPost('password');
 
-            if ($user !== false) {
+            $user = Users::findFirst([
+                "(email = :email: OR username = :email:) AND password = :password: AND active = 'Y'",
+                'bind' => ['email' => $email, 'password' => sha1($password)]
+            ]);
+            if ($user != false) {
                 $this->_registerSession($user);
+                $this->flash->success('Welcome ' . $user->name);
 
-                $this->flash->success(
-                    "Welcome " . $user->name
-                );
-
-                // Перенаправляем на контроллер 'invoices', если пользователь существует
                 return $this->dispatcher->forward(
                     [
                         "controller" => "invoices",
@@ -48,15 +61,30 @@ class SessionController extends Controller
                 );
             }
 
-            $this->flash->error(
-                "Неверный email/пароль"
-            );
+            $this->flash->error('Wrong email/password');
         }
 
-        // Снова выдаем форму авторизации
         return $this->dispatcher->forward(
             [
                 "controller" => "session",
+                "action"     => "index",
+            ]
+        );
+    }
+
+    /**
+     * Finishes the active session redirecting to the index
+     *
+     * @return unknown
+     */
+    public function endAction()
+    {
+        $this->session->remove('auth');
+        $this->flash->success('Goodbye!');
+
+        return $this->dispatcher->forward(
+            [
+                "controller" => "index",
                 "action"     => "index",
             ]
         );

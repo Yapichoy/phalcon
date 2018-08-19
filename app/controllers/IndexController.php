@@ -1,19 +1,18 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: User
- * Date: 16.08.2018
- * Time: 20:27
- */
-use Phalcon\Mvc\Controller;
-class IndexController extends Controller
+class IndexController extends ControllerBase
 {
+    public function initialize()
+    {
+        $this->tag->setTitle('Welcome');
+        parent::initialize();
+    }
+
     public function indexAction()
     {
-       
-    }
-    public function profileAction(){
-        echo "profile";
+        if (!$this->request->isPost()) {
+            $this->flash->notice('This is a sample application of the Phalcon Framework.
+                Please don\'t provide us any personal information. Thanks');
+        }
     }
 }
